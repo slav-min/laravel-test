@@ -21,7 +21,7 @@
             }
 
             .full-height {
-                height: 100vh;
+                /* height: 100vh; */
             }
 
             .flex-center {
@@ -84,15 +84,81 @@
                     Laravel
                 </div>
 
-                <div class="links">
+<!--                 <div class="links">
                     <a href="https://laravel.com/docs">Documentation</a>
                     <a href="https://laracasts.com">Laracasts</a>
                     <a href="https://laravel-news.com">News</a>
                     <a href="https://nova.laravel.com">Nova</a>
                     <a href="https://forge.laravel.com">Forge</a>
                     <a href="https://github.com/laravel/laravel">GitHub</a>
+                </div> -->
+                <div>
+                <?php
+                
+                    $url = 'http://phisix-api3.appspot.com/stocks.json';
+                    $res = getData($url);
+                    echo makeTable($res);
+                
+                
+                
+                function getData($url){
+                    
+                    if (function_exists('curl_init')) {
+                        $ch = curl_init();
+                        curl_setopt($ch, CURLOPT_URL,$url);
+                        curl_setopt($ch, CURLOPT_RETURNTRANSFER,1);
+                        curl_setopt($ch, CURLOPT_CONNECTTIMEOUT,14);
+                        curl_setopt($ch, CURLOPT_HEADER,0);
+                        $response = curl_exec($ch);
+                        curl_close($ch);
+                    } else {
+                        $response = @file_get_contents($url);
+                    }
+                    
+                    return $response;
+                    
+                }
+
+                function makeTable($data){
+                    $dataArr = json_decode($data, true);
+                    $out = '<div style="text-align:right; margin-bottom:20px"><button onclick="update()">Update</button></div>';
+                    $out.= '<table class="table table-striped">';
+                    $out.='<tr><th>NAME</th><th>PRICE</th><th>CHANGE</th><th>VOLUME</th><th>SYMBOL</th></tr>';
+                    foreach ($dataArr['stock'] as $k=>$v){
+                        $out.='<tr>';
+                        if($v['name']){
+                            $out.= '<td>'.$v['name'].'</td>';
+                        }
+                        if($v['percent_change']){
+                            $out.= '<td>'.$v['percent_change'].'</td>';
+                        }
+                        if($v['volume']){
+                            $out.= '<td>'.$v['volume'].'</td>';
+                        }
+                        if($v['symbol']){
+                            $out.= '<td>'.$v['symbol'].'</td>';
+                        } 
+                         if($v['price']){
+                            $out.= '<td>'.$v['price']['currency'].' / '.$v['price']['amount'].'</td>';
+                        }                         
+                    }
+                    $out.='</tr>';
+                    $out.='</table>';
+
+                    return $out;                    
+                }
+
+                ?>
                 </div>
             </div>
         </div>
+        <script type="text/javascript">
+            setTimeout(function(){
+               location = '/public/'
+            },15000);
+            function update(){
+               location = '/public/'
+            }
+       </script>
     </body>
 </html>
